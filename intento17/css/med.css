@@ -1,0 +1,116 @@
+@media (max-width: 1145px) {
+  .video .description {
+    display: inline-block;
+    height: 90px;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 1090px) {
+  iframe {
+    height: 270px !important;
+  }
+}
+
+@media (max-width: 770px) {
+  .video .description {
+    display: inline-block;
+    height: 68px;
+    overflow: hidden;
+  }
+}
+
+@media (max-width: 720px) {
+  iframe {
+    height: 235px !important;
+  }
+}
+
+@media (max-width: 500px) {
+  iframe {
+    height: 195px !important;
+  }
+
+  header input {
+    width: 210px;
+  }
+}
+
+
+
+
+::selection {
+   display: none;
+}
+
+::-webkit-scrollbar {
+   width: 6px;
+   height: 6px;
+}
+
+::-webkit-scrollbar-track {
+   background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+   background: #bbb;
+   border-radius: 50px;
+}
+
+
+section { margin: 30px 0; }
+
+.movie-slide { background:#534c53#fff; 
+    color: #000; margin: auto;
+    max-width: 850px;
+    overflow: hidden; 
+    padding: 10px 10px 13px; }
+
+.movie-slide:hover { 
+   transition: 1s ease-out; 
+   box-shadow: rgba(0, 0, 0, 0.6) 0px 3px 15px; }
+
+.container-title { display: flex; 
+    border-bottom: 2px solid; width:110px;
+    margin-left: 15px;
+    font-size: 25px;  }
+
+.movie-box { display: flex;
+   overflow-x: scroll;
+   padding: 10px 10px;
+   scroll-snap-type: x mandatory;
+   scroll-padding: 0px;
+}
+
+.movie-info { 
+    margin: 5px 15px 8px 0px;
+    scroll-snap-align: start; }
+
+.movie-info img { 
+  background: center center/cover no-repeat #ddd;
+   border-radius: 0 0 10px 10px;
+   height: 300px;
+   object-fit: cover;
+   width: 220px;
+   object-fit: fill;
+}
+
+.movie-name { cursor:pointer;
+   padding: 12px 0px;
+   width: 200px;
+   font-size: 1.8rem;  }
+
+.review { 
+   font-size: 1.4rem;
+   font-weight: 300; }
+.review .fa-solid { font-size: 1.8rem; color: #e53935; margin: 0 10px; }
+
+.all-btn { text-align: center; 
+    background-color: #ff4900; 
+    border-radius: 10rem; 
+    margin: -15px auto 0; 
+    font-size: 1.2rem; font-weight: 600; 
+    width: 220px; max-width: 400px; 
+    padding: 10px; }
+    
+.all-btn:active { transform: translateY(2px); }

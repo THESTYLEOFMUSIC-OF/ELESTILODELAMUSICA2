@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor de Música</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color:#000000;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #ffffff;
+        }
+
+        input[type="text"] {
+            width: 60%;
+            padding: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            background-color: #4b006e;
+            color: #ffffff;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            background-color: #9b51e0;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #ba73ff;
+        }
+
+        /* Contenedor de controles en la parte superior */
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* Lista de canciones más compacta */
+        #album-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .album {
+            background-color: #4b006e;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .album:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .album img {
+            width: 50px;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .album h3 {
+            color: #e0b3ff;
+            font-size: 14px;
+            margin: 0;
+            flex: 1;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .play-btn {
+            padding: 5px 10px;
+            background-color: #9b51e0;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .play-btn:hover {
+            background-color: #ba73ff;
+        }
+
+        /* Ocultamos el reproductor de YouTube */
+        #player {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button id="prevBtn" onclick="prevSong()">Anterior</button>
+        <button id="playBtn" onclick="playPause()">Reproducir</button>
+        <button id="nextBtn" onclick="nextSong()">Siguiente</button>
+    </div>
+
+    <h1>Busca tu Música Favorita</h1>
+    
+    <input type="text" id="search-query" placeholder="Buscar canciones...">
+    <button onclick="searchMusic()">Buscar</button>
+
+    <div id="album-container"></div>
+
+    <!-- Reproductor de YouTube oculto -->
+    <div id="player"></div>
+
+    <script>
+        let player;
+        let currentVideoIndex = 0;
+        let videoIds = [];
+        let isPlaying = false;
+
+        // Cargar la API de YouTube IFrame
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '0', // Ocultamos el iframe
+                width: '0',  // Ocultamos el iframe
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        // Inicializar el reproductor
+        function onPlayerReady(event) {
+            console.log("El reproductor está listo.");
+        }
+
+        // Monitorear cambios de estado (pausa, reproducción, fin del video, etc.)
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                nextSong(); // Cambiar a la siguiente canción cuando el video termine
+            }
+        }
+
+        // Función para buscar música usando la API de YouTube
+        function searchMusic() {
+            const query = document.getElementById('search-query').value;
+            const apiKey = 'AIzaSyCVwFlN3vOjhkEhkQRcpEW-LtL-IGFhiWA';
+            const apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=${query}&type=video&videoCategoryId=10&key=${apiKey}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    videoIds = data.items.map(video => video.id.videoId);
+                    displayResults(data.items);
+                })
+                .catch(error => {
+                    console.error('Error al buscar videos:', error);
+                });
+        }
+
+        // Función para mostrar los resultados de búsqueda en forma de lista pequeña
+        function displayResults(videos) {
+            const albumContainer = document.getElementById('album-container');
+            albumContainer.innerHTML = ''; // Limpiar resultados previos
+
+            videos.forEach((video, index) => {
+                const album = document.createElement('div');
+                album.className = 'album';
+
+                const thumbnail = video.snippet.thumbnails.medium.url;
+                const title = video.snippet.title;
+
+                album.innerHTML = `
+                    <img src="${thumbnail}" alt="Imagen del video">
+                    <h3>${title}</h3>
+                    <button class="play-btn" onclick="playSpecificSong(${index})">Reproducir</button>
+                `;
+
+                albumContainer.appendChild(album);
+            });
+        }
+
+        // Función para reproducir la canción actual
+        function playSong(videoId) {
+            player.loadVideoById(videoId);
+            isPlaying = true;
+            document.getElementById('playBtn').innerText = 'Pausar';
+        }
+
+        // Reproducir canción específica desde la lista de resultados
+        function playSpecificSong(index) {
+            currentVideoIndex = index;
+            playSong(videoIds[currentVideoIndex]);
+        }
+
+        // Función para pausar y reproducir
+        function playPause() {
+            if (isPlaying) {
+                player.pauseVideo();
+                isPlaying = false;
+                document.getElementById('playBtn').innerText = 'Reproducir';
+            } else {
+                player.playVideo();
+                isPlaying = true;
+                document.getElementById('playBtn').innerText = 'Pausar';
+            }
+        }
+
+        // Función para la canción anterior
+        function prevSong() {
+            currentVideoIndex = (currentVideoIndex > 0) ? currentVideoIndex - 1 : videoIds.length - 1;
+            playSong(videoIds[currentVideoIndex]);
+        }
+
+        // Función para la siguiente canción
+        function nextSong() {
+            currentVideoIndex = (currentVideoIndex < videoIds.length - 1) ? currentVideoIndex + 1 : 0;
+            playSong(videoIds[currentVideoIndex]);
+        }
+
+        // Cargar la API de YouTube de manera asincrónica
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    </script>
+
+</body>
+</html>
